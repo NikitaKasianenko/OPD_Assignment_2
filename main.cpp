@@ -98,6 +98,50 @@ public:
 };
 
 
+class Square : public Figure {
+private:
+    int side;
+    vector<int> coordinates;
+
+public:
+    const string typeName = "Square";
+    Square(int s,int _x, int _y) : side(s) {
+        coordinates.push_back(_x);
+        coordinates.push_back(_y);
+    }
+
+    std::vector<std::vector<char>> draw() const override {
+        std::vector<std::vector<char>> square(side, std::vector<char>(side, ' '));
+        for (int i = 0; i < side; i++) {
+            if (i == 0 || i == side - 1) {
+                for (int j = 0; j < side; j++) {
+                    square[i][j] = '*';
+                }
+            }
+            else {
+                for (int k = 0; k < side; k++) {
+                    if (k == 0 || k == side - 1) {
+                        square[i][k] = '*';
+                    }
+                    else {
+                        square[i][k] = ' ';
+                    }
+                }
+            }
+        }
+        return square;
+    }
+
+    
+
+    vector<int> positon() const override {
+        return coordinates;
+    }
+    
+    int getSide() {
+        return side;
+    }
+};
 
 struct Board {
     std::vector<std::vector<char>> grid;
