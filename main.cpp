@@ -19,6 +19,42 @@ public:
     virtual ~Figure() = default;
 };
 
+class Triangle : public Figure {
+private:
+    int height;
+    vector<int> coordinates;
+
+public:
+    Triangle(int h, int _x, int _y) : height(h) {
+        coordinates.push_back(_x);
+        coordinates.push_back(_y);
+    }
+
+    std::vector<std::vector<char>> draw() const override {
+        std::vector<std::vector<char>> triangle(height, std::vector<char>(2 * height - 1, ' '));
+        for (int i = 0; i < height; ++i) {
+            int leftMost = height - 1 - i;
+            int rightMost = height - 1 + i;
+            triangle[i][leftMost] = '*';
+            triangle[i][rightMost] = '*';
+        }
+
+        for (int j = 0; j < 2 * height - 1; ++j) {
+            triangle[height - 1][j] = '*';
+        }
+        return triangle;
+    }
+
+    
+
+    vector<int> positon() const override {
+        return coordinates;
+    }
+    int getHeigh() {
+        return height;
+    }
+};
+
 
 
 struct Board {
