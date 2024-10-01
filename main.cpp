@@ -55,6 +55,48 @@ public:
     }
 };
 
+class Rectangle : public Figure {
+private:
+    int height;
+    vector<int> coordinates;
+
+public:
+    Rectangle(int h, int _x, int _y) : height(h) {
+        coordinates.push_back(_x);
+        coordinates.push_back(_y);
+    }
+
+    std::vector<std::vector<char>> draw() const override {
+        std::vector<std::vector<char>> triangle(2*height - 1, std::vector<char>(2 * height - 1, ' '));
+
+        for (int i = 0; i < height; ++i) {
+            int leftMost = height - 1 - i;
+            int rightMost = height - 1 + i;
+            triangle[i][leftMost] = '*';
+            triangle[i][rightMost] = '*';
+        }
+
+        for (int i = height; i < 2 * height - 1; ++i) {
+            int leftMost = i - height + 1;
+            int rightMost = 3 * height - i - 3;
+            triangle[i][leftMost] = '*';
+            triangle[i][rightMost] = '*';
+        }
+
+        
+        return triangle;
+    }
+
+   
+
+    vector<int> positon() const override {
+        return coordinates;
+    }
+    int getHeigh() {
+        return height;
+    }
+};
+
 
 
 struct Board {
