@@ -143,6 +143,43 @@ public:
     }
 };
 
+class Circle : public Figure {
+private:
+    int rad;
+    vector<int> coordinates;
+
+public:
+    Circle(int r, int _x, int _y) : rad(r) {
+        coordinates.push_back(_x);
+        coordinates.push_back(_y);
+    }
+
+    std::vector<std::vector<char>> draw() const override {
+        std::vector<std::vector<char>> circle(rad * 2 + 1, std::vector<char>(rad * 2 + 1, ' '));
+        double aspect_ratio = 1;
+
+        for (int i = -rad; i <= rad; i++) {
+            for (int j = -rad; j <= rad; j++) {
+                double distance = sqrt(pow(i * aspect_ratio, 2) + pow(j, 2));
+
+                if (distance >= rad - 0.5 && distance <= rad + 0.5) {
+                    circle[i + rad][j + rad] = '*';
+                }
+            }
+        }
+        return circle;
+    }
+
+
+
+    vector<int> positon() const override {
+        return coordinates;
+    }
+    int getRadius() {
+        return rad;
+    }
+};
+
 struct Board {
     std::vector<std::vector<char>> grid;
 
