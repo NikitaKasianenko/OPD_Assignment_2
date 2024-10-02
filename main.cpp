@@ -17,6 +17,7 @@ public:
     virtual std::vector<std::vector<char>> draw() const = 0;
     virtual vector<int> positon() const = 0;
     virtual ~Figure() = default;
+    virtual bool operator==(const Figure& other) const = 0;
 };
 
 class Triangle : public Figure {
@@ -28,6 +29,15 @@ public:
     Triangle(int h, int _x, int _y) : height(h) {
         coordinates.push_back(_x);
         coordinates.push_back(_y);
+    }
+    bool operator==(const Figure& other) const override {
+        const Triangle* otherTriangle = dynamic_cast<const Triangle*>(&other);
+        if (otherTriangle) {
+            return (height == otherTriangle->height && coordinates[0] == otherTriangle->coordinates[0] && coordinates[1] == otherTriangle->coordinates[1]);
+        }
+        else {
+            return false;
+        }
     }
 
     std::vector<std::vector<char>> draw() const override {
@@ -64,6 +74,16 @@ public:
     Rectangle(int h, int _x, int _y) : height(h) {
         coordinates.push_back(_x);
         coordinates.push_back(_y);
+    }
+
+    bool operator==(const Figure& other) const override{
+        const Rectangle* otherRectangle = dynamic_cast<const Rectangle*>(&other);
+        if (otherRectangle) {
+            return (height == otherRectangle->height && coordinates[0] == otherRectangle->coordinates[0] && coordinates[1] == otherRectangle->coordinates[1]);
+        }
+        else {
+            return false;
+        }
     }
 
     std::vector<std::vector<char>> draw() const override {
@@ -109,6 +129,16 @@ public:
         coordinates.push_back(_y);
     }
 
+    bool operator==(const Figure& other) const override {
+        const Circle* otherCircle= dynamic_cast<const Circle*>(&other);
+        if (otherCircle) {
+            return (rad == otherCircle->rad && coordinates[0] == otherCircle->coordinates[0] && coordinates[1] == otherCircle->coordinates[1]);
+        }
+        else {
+            return false;
+        }
+    }
+
     std::vector<std::vector<char>> draw() const override {
         std::vector<std::vector<char>> circle(rad * 2 + 1, std::vector<char>(rad * 2 + 1, ' '));
         double aspect_ratio = 1;
@@ -137,7 +167,9 @@ public:
 
 class Square : public Figure {
 private:
-    int side;
+    int width,height;
+    int side = 0;
+
     vector<int> coordinates;
 
 public:
@@ -147,26 +179,61 @@ public:
         coordinates.push_back(_y);
     }
 
-    std::vector<std::vector<char>> draw() const override {
-        std::vector<std::vector<char>> square(side, std::vector<char>(side, ' '));
-        for (int i = 0; i < side; i++) {
-            if (i == 0 || i == side - 1) {
-                for (int j = 0; j < side; j++) {
-                    square[i][j] = '*';
-                }
+    Square(int w,int h, int _x, int _y) : width(w),height(h) {
+        coordinates.push_back(_x);
+        coordinates.push_back(_y);
+    }
+
+ 
+    bool operator==(const Figure& other) const override {
+        const Square* otherSquare= dynamic_cast<const Square*>(&other);
+        if (otherSquare) {
+            if (side != 0) {
+                return (coordinates[0] == otherSquare->coordinates[0] && coordinates[1] == otherSquare->coordinates[1] && side == otherSquare->side);
             }
             else {
-                for (int k = 0; k < side; k++) {
-                    if (k == 0 || k == side - 1) {
-                        square[i][k] = '*';
+                return (height == otherSquare->height && coordinates[0] == otherSquare->coordinates[0] && coordinates[1] == otherSquare->coordinates[1] && width == otherSquare->width);
+
+            }
+            
+        }
+        return false;
+    }
+
+    std::vector<std::vector<char>> draw() const override {
+        if (side != 0) {
+            std::vector<std::vector<char>> square(side, std::vector<char>(side, ' '));
+            for (int i = 0; i < side; i++) {
+                if (i == 0 || i == side - 1) {
+                    for (int j = 0; j < side; j++) {
+                        square[i][j] = '*';
                     }
-                    else {
-                        square[i][k] = ' ';
+                }
+                else {
+                    for (int k = 0; k < side; k++) {
+                        if (k == 0 || k == side - 1) {
+                            square[i][k] = '*';
+                        }
+                        else {
+                            square[i][k] = ' ';
+                        }
                     }
                 }
             }
+            return square;
         }
-        return square;
+        else {
+            std::vector<std::vector<char>> rectangle(height, std::vector<char>(width, ' '));
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (i == 0 || i == height - 1 || j == 0 || j == width - 1) {
+                        rectangle[i][j] = '*';
+                    }
+                }
+            }
+            return rectangle;
+
+        }
     }
 
 
@@ -177,6 +244,10 @@ public:
 
     int getSide() {
         return side;
+    }
+
+    string getSides() {
+        return to_string(height) +" "  +  to_string(width);
     }
 };
 
@@ -243,9 +314,11 @@ public:
             if (command == "add") {
                 add(input);
             }
+
             else if (command == "list") {
                 list();
             }
+
             else if (command == "draw") {
                 draw();
             }
@@ -265,6 +338,10 @@ public:
                 save();
             }
 
+            else if (command == "shapes") {
+                shapes();
+            }
+
             else if (command == "load") {
                 load();
             }
@@ -272,6 +349,7 @@ public:
             else if (command == "exit") {
                 break;
             }
+
             else {
                 cout << "Unknown command" << endl;
             }
@@ -310,20 +388,26 @@ public:
             auto coordinates = fig->positon();
 
             if (circle != nullptr) {
-                cout << "ID " << ID << " Circle radius " << circle->getRadius() << "coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                cout << "ID " << ID << " Circle radius " << circle->getRadius() << " coordanates " << coordinates[0] << " " << coordinates[1] << endl;
 
             }
 
             if (square != nullptr) {
-                cout << "ID " << ID << " Square side " << square->getSide() << "coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                if (square->getSide() != 0) {
+                    cout << "ID " << ID << " Square side " << square->getSide() << " coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                }
+                else
+                {
+                    cout << "ID " << ID << " Square sides " << square->getSides() << " coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                }
 
             }
             if (triangle != nullptr) {
-                cout << "ID " << ID << " Triangle height " << triangle->getHeigh() << "coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                cout << "ID " << ID << " Triangle height " << triangle->getHeigh() << " coordanates " << coordinates[0] << " " << coordinates[1] << endl;
 
             }
             if (rectangle != nullptr) {
-                cout << "ID " << ID << " Rectangle side " << triangle->getHeigh() << "coordanates " << coordinates[0] << " " << coordinates[1] << endl;
+                cout << "ID " << ID << " Rectangle side " << triangle->getHeigh() << " coordanates " << coordinates[0] << " " << coordinates[1] << endl;
 
             }
 
@@ -386,27 +470,42 @@ public:
         board.print();
     }
     void add(vector<string> input) {
+        shared_ptr<Figure> newFigure = nullptr;
 
         if (input[1] == "circle") {
             int rad = stoi(input[2]);
             int x = stoi(input[3]);
             int y = stoi(input[4]);
 
-            Figures.emplace_back(make_shared<Circle>(rad, x, y));
+            newFigure = make_shared<Circle>(rad, x, y);
+           
+
         }
         else if (input[1] == "triangle") {
             int height = stoi(input[2]);
             int x = stoi(input[3]);
             int y = stoi(input[4]);
 
-            Figures.emplace_back(make_shared<Triangle>(height, x, y));
+            newFigure = make_shared<Triangle>(height, x, y);
         }
-        else if (input[1] == "square") {
-            int side = stoi(input[2]);
-            int x = stoi(input[3]);
-            int y = stoi(input[4]);
 
-            Figures.emplace_back(make_shared<Square>(side, x, y));
+        else if (input[1] == "square") {
+            if (input.size() == 5) {
+                int side = stoi(input[2]);
+                int x = stoi(input[3]);
+                int y = stoi(input[4]);
+
+                newFigure = (make_shared<Square>(side, x, y));
+            }
+            else {
+                int width = stoi(input[2]);
+                int height = stoi(input[3]);
+                int x = stoi(input[4]);
+                int y = stoi(input[5]);
+
+                newFigure = (make_shared<Square>(width,height, x, y));
+            }
+            
         }
 
         else if (input[1] == "rectangle") {
@@ -414,8 +513,27 @@ public:
             int x = stoi(input[3]);
             int y = stoi(input[4]);
 
-            Figures.emplace_back(make_shared<Rectangle>(side, x, y));
+            newFigure = (make_shared<Rectangle>(side, x, y));
         }
+
+        if (newFigure != nullptr) {
+            if (!sameShape(*newFigure)) {
+                Figures.emplace_back(newFigure);
+            }
+            else {
+                cout << "This figure already on the board" << endl;
+            }
+            
+        }
+        
+
+    }
+
+    void shapes() {
+        cout << "circle radius coordinates" << endl;
+        cout << "triangle heigh coordinates" << endl;
+        cout << "square side / (wight, heigh) coordinates" << endl;
+        cout << "rectangle heigh coordinates" << endl;
     }
 
     vector<string> user_input() {
@@ -432,6 +550,15 @@ public:
         }
 
         return row;
+    }
+
+    bool sameShape(Figure& fig) {
+        for (auto& f : Figures) {
+            if (*f == fig) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
